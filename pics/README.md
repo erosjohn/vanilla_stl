@@ -1,0 +1,1 @@
+Store pictures in the project
