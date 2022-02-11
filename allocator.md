@@ -35,9 +35,33 @@ SGI STL中也有符合标准，名称为allocator的配置器，但是其仅仅�
 
 ## SGI特殊的空间配置器，std::alloc
 
+一般来说，我们习惯的C++内存申请/释放操作通常是这样：
+
+```c++
+class Foo { ... };
+Foo* pf = new Foo;	// 分配内存，然后构造对象
+delete pf;			// 析构对象，然后释放内存
+```
+
+其中的new包括了两个阶段：
+
+1. 调用::operator new分配内存
+2. 调用Foo::Foo()构造对象
+
+同理，delete也包括两个阶段：
+
+1. 调用Foo::~Foo()析构对象
+2. 调用::operator delete释放内存
+
+在STL中，内存分配由alloc::allocate()负责，内存释放由alloc::deallocate()负责；对象构造由::construct()负责，对象析构由::destroy()负责。
+
+具体的分布见下图：
+
+![alloc](./pics/alloc.png)
 
 
 
+## 构造与析构
 
-
+在上一小节中可以看到，对象的构造与析构由stl_construct.h负责，其中定义了全局函数construct()与destroy()。
 
