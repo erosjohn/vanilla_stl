@@ -72,3 +72,21 @@ construct()接收一个指针p和一个初值value。然后通过`new(p) T1(valu
 `new(p) T1(value)`这一操作叫做`placement new`，在指针p所指向的内存空间创建一个T1类型的对象，但是对象的内容是从T2类型的对象转换过来的（调用了T1的构造函数，T1::T1(value)）。这一操作类似C中的realloc，在已有空间的基础上重新调整分配的空间。
 
 destroy()有两个版本，第一个版本接收一个指针，通过调用该对象的析构函数即可。另一个版本接收first和last两个指针，将对[first, last)内的对象进行判断并选择是否析构。判断是依据value_type()获取迭代器所指对象类型，再通过__type_traits\<T>来判断该类别的析构函数是否无关痛痒(trivial destructor)。如果为\_\_false_type，则对范围内的对象调用第一个版本的destroy()；如果是\_\_true_type，则不进行任何操作。
+
+## 空间的分配与释放
+
+这部分由stl_alloc.h负责：
+
+1. 向system heap申请空间；
+2. 考虑多线程状态；
+3. 考虑内存不足时的情况；
+4. 考虑内存碎片。
+
+![construct](./pics/alloc1.png)
+
+SGI STL设计了双层配置器，第一级配置器（__malloc_alloc_template）直接调用malloc和free来完成空间的分配。第二级配置器（\_\_default_alloc_template）当分配的区块大于128bytes时调用第一级配置器，否则使用内存池。为了符合STL规范，SGI还为这两级配置器包装了一层接口simple\_alloc。
+
+![construct](./pics/alloc2.png)
+
+
+

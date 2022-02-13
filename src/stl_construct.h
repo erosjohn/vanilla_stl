@@ -18,7 +18,7 @@ inline void _Construct(_T1* __p, const _T2& __value) {
 
 template <class _T1>
 inline void _Construct(_T1* __p) {
-  new ((void*) __p) _T1();
+	new((void*) __p) _T1();
 }
 
 /*
@@ -40,7 +40,7 @@ inline void _Destroy(_Tp* __pointer) {
 }
 */
 
-// _Destroy's first version, which received a pointer parameter.
+// 第一个版本，接收一个指针。
 template <class _Tp>
 inline void _Destroy(_Tp* __pointer) {
 	if(__pointer != nullptr) {
@@ -48,9 +48,37 @@ inline void _Destroy(_Tp* __pointer) {
 	}
 }
 
-// _Destroy's second version, which received two parameters:Iterator first, Iterator last.
-template <class _Tp>
-inline void _Destroy(_ForwardIterator __first, _ForwardIterator __last) {}
+// non-trivial destructor
+template <class _ForwardIterator>
+void __destroy_aux(_ForwardIterator __first, _ForwardIterator __last, __false_type) {
+	 for (; __first != __last; ++__first) {
+	 	_Destroy(&*__first);
+	 }
+}
+
+// trivial destructor
+template <class _ForwardIterator> 
+inline void __destroy_aux(_ForwardIterator, _ForwardIterator, __true_type) {}
+
+// 判断trivial destructor或non-trivial destructor
+template <class _ForwardIterator, class _Tp>
+inline void  __destroy(_ForwardIterator __first, _ForwardIterator __last, _Tp*) {
+  typedef typename __type_traits<_Tp>::has_trivial_destructor  _Trivial_destructor;
+  __destroy_aux(__first, __last, _Trivial_destructor());
+}
+
+// 第二个版本，接收两个参数，迭代器first与迭代器last。
+template <class _ForwardIterator>
+inline void _Destroy(_ForwardIterator __first, _ForwardIterator __last) {
+	__destroy(__first, __last, __VALUE_TYPE(__first));
+}
+
+// 特化
+inline void _Destroy(char*, char*) {}
+inline void _Destroy(int*, int*) {}
+inline void _Destroy(long*, long*) {}
+inline void _Destroy(float*, float*) {}
+inline void _Destroy(double*, double*) {}
 
 // Old names from the HP STL.
 template <class _T1, class _T2>
@@ -63,8 +91,16 @@ inline void construct(_T1* __p) {
   _Construct(__p);
 }
 
+template <class _Tp>
+inline void destroy(_Tp* __pointer) {
+  _Destroy(__pointer);
+}
+
+template <class _ForwardIterator>
+inline void destroy(_ForwardIterator __first, _ForwardIterator __last) {
+	_Destroy(__first, __last);
+}
 
 __STL_END_NAMESPACE
-
 
 #endif // VANILLA_SGI_STL_CONSTRUCT_H
