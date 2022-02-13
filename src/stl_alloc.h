@@ -17,29 +17,29 @@ template<int __inst>
 class __malloc_alloc_template {
 
 private:
-	static void* _S_oom_malloc(size_t);
-	static void* _S_oom_realloc(void*, size_t);
+    static void* _S_oom_malloc(size_t);
+    static void* _S_oom_realloc(void*, size_t);
 /*
-	static void (* __malloc_alloc_oom_handler)();
+    static void (* __malloc_alloc_oom_handler)();
 */
 public:
-	static void* allocate(size_t __n) {
-		void *__result = malloc(__n);
-		if (0 == __result) {
-			__result = _S_oom_malloc(__n);
-		}
-		return __result;
-	}
-	static void deallocate(void* __p, size_t /* __n */) {
-		free(__p); 
-	}
-	static void* reallocate(void* __p, size_t /* old_sz */, size_t __new_sz) {
-		void* __result = realloc(__p, __new_sz);
-		if (0 == __result) {
-			__result = _S_oom_realloc(__p, __new_sz);
-		}
-		return __result;
-	}
+    static void* allocate(size_t __n) {
+        void *__result = malloc(__n);
+        if (0 == __result) {
+            __result = _S_oom_malloc(__n);
+        }
+        return __result;
+    }
+    static void deallocate(void* __p, size_t /* __n */) {
+        free(__p); 
+    
+    static void* reallocate(void* __p, size_t /* old_sz */, size_t __new_sz) {
+        void* __result = realloc(__p, __new_sz);
+        if (0 == __result) {
+            __result = _S_oom_realloc(__p, __new_sz);
+        }
+        return __result;
+    }
 };
 
 template <int __inst>
@@ -54,8 +54,8 @@ __malloc_alloc_template<__inst>::_S_oom_malloc(/* size_t __n */)
 template <int __inst>
 void* __malloc_alloc_template<__inst>::_S_oom_realloc(/* void* __p, size_t __n */)
 {
-	// void __p;
-	// void __n;
+    // void __p;
+    // void __n;
     printf("calling _S_oom_realloc, out of memory.\n");
     exit(1);
 }
